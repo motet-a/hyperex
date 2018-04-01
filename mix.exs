@@ -6,7 +6,7 @@ defmodule Hyperex.MixProject do
       app: :hyperex,
       name: "Hyperex",
       package: package(),
-      version: "0.1.0",
+      version: "0.1.1",
       elixir: "~> 1.6",
       deps: deps(),
       description: "A macro-powered HTML renderer",
