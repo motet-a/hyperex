@@ -79,9 +79,8 @@ defmodule HyperexExample do
         head do
           meta charset: "utf-8"
 
-          title do
-            ^props.title
-          end
+          # Same as `title do ^props.title end`
+          title children: props.title
         end
 
     body =

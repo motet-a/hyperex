@@ -69,11 +69,11 @@ defmodule HyperexTest do
   end
 
   defp void_custom_element(_) do
-    hyperex(custom_element(:void))
+    hyperex(custom_element :void)
   end
 
   defp element_without_parameters(_) do
-    hyperex(div("hello"))
+    hyperex(div "hello")
   end
 
   test "hyperex macro" do
@@ -92,8 +92,15 @@ defmodule HyperexTest do
                end
              )
 
+    assert ~s{<a ></a>} === hts(a)
     assert ~s{<a ></a>} === hts(a())
-    assert ~s{<a >abc</a>} === hts(a(do: "abc"))
+    assert ~s{<a >abc</a>} === hts(a do: "abc")
+    assert ~s{<a ><strong >b</strong></a>} === hts(a do: strong("b"))
+    assert ~s{<a >bc</a>} === hts(a do: ^("b" <> "c"))
+    assert ~s{<a >bc</a>} === hts(a children: "b" <> "c")
+    assert ~s{<a >b</a>} === hts(a children: "b" do "c" end)
+    assert ~s{<a ></a>} === hts(a children: nil do "c" end)
+    assert ~s{<a />} === hts(a children: :void do "c" end)
     assert ~s{<a href="b" title="a" >abc</a>} === hts(a(title: "a", href: "b", do: "abc"))
 
     assert ~s{<a href="abc" >abc</a>} ===
@@ -139,6 +146,11 @@ defmodule HyperexTest do
     assert ~s{<div ><div >hello</div></div>} === hts(div do
       -element_without_parameters
     end)
+
+    assert ~s{<a href="b" ></a>} === hts(a %{href: "b"})
+    props = %{href: "b", children: "d"}
+    assert ~s{<a href="b" >d</a>} === hts(a props)
+    assert ~s{<a href="b" >c</a>} === hts(a props do "c" end)
   end
 
   test "hyperex macro raises with invalid user-defined elements" do

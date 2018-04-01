@@ -86,9 +86,28 @@ defmodule Hyperex do
       [],
       opts
       |> Keyword.delete(:do)
-      |> Keyword.put(:children, children_ast)
+      |> Keyword.put_new(:children, children_ast)
     }
 
+    {tag, meta, props_ast}
+  end
+
+  defp preprocess_elem(tag, meta, [map]) do
+    {tag, meta, map}
+  end
+
+  defp preprocess_elem(tag, meta, [map, [do: block]]) do
+    children_ast =
+      case block do
+        :void -> :void
+        nil -> nil
+        e -> preprocess(e)
+      end
+
+    props_ast =
+      quote do
+        Map.put(unquote(map), :children, unquote(children_ast))
+      end
     {tag, meta, props_ast}
   end
 
