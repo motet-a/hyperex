@@ -94,6 +94,16 @@ defmodule Hyperex do
 
   @doc """
   Transforms Hyperex DSL code to renderable elements.
+
+  Use `render/1` to convert the returned renderable elements into
+  iodata or strings.
+
+  ## Example
+
+      iex> import Hyperex
+      iex> require Hyperex
+      iex> hyperex(html do h1 do "Hello" end end)
+      {:html, %{children: {:h1, %{children: "Hello"}}}}
   """
   defmacro hyperex(do: block) do
     preprocess(block)
@@ -137,6 +147,27 @@ defmodule Hyperex do
 
   @doc """
   Creates HTML iodata from elements.
+
+  ## Example
+
+      iex> import Hyperex
+      iex> require Hyperex
+      iex> renderable = hyperex(html do h1 do "Hello" end end)
+      {:html, %{children: {:h1, %{children: "Hello"}}}}
+      iex> render(renderable)
+      [
+        60,
+        "html",
+        32,
+        [],
+        62,
+        [60, "h1", 32, [], 62, "Hello", "</", "h1", 62],
+        "</",
+        "html",
+        62
+      ]
+      iex> to_string(render(renderable))
+      "<html ><h1 >Hello</h1></html>"
   """
   @spec render(renderable) :: iodata
   def render(renderable)
@@ -175,11 +206,18 @@ defmodule Hyperex do
 
   ## Example
 
-      hyperex(
-        html5_doctype do
-
-        end
-      )
+      iex> import Hyperex
+      iex> require Hyperex
+      iex> to_string render hyperex(
+      ...>   -html5_doctype do
+      ...>     html do
+      ...>       body do
+      ...>         "hello"
+      ...>       end
+      ...>     end
+      ...>   end
+      ...> )
+      "<!DOCTYPE html><html ><body >hello</body></html>"
   """
   def html5_doctype(%{children: children}) do
     {:dangerously_unescaped, ~s{<!DOCTYPE html>}, children, ""}
