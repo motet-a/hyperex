@@ -18,7 +18,8 @@ defmodule Hyperex.MixProject do
     [
       {:plug, "~> 1.5"},
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
-      {:credo, "~> 0.9.0-rc1", only: [:dev, :test], runtime: false}
+      {:credo, "~> 0.9.0-rc1", only: [:dev, :test], runtime: false},
+      {:ex_doc, ">= 0.0.0", only: :dev}
     ]
   end
 
