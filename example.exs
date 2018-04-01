@@ -19,8 +19,8 @@ defmodule HyperexExample do
     # You can replace these `~~~` by `hyperex`.
     ~~~
       a class: "user-link", href: "/user/#{user.id}" do
-        # Between a `do` and an `end`, we have to escape expressions
-        # to interpolate with a `^`.
+        # Between a `do` and an `end`, expressions which aren’t inline markup
+        # or inline strings must be interpolated with `^`
         ^user.name
       end
   end
@@ -36,9 +36,9 @@ defmodule HyperexExample do
     ~~~
       div class: "comment" do
         div class: "comment-meta" do
-          # `datetime` is an user-defined function and not a “native” HTML tag.
-          # We have to inform Hyperex by prepending a `-` before `datetime`.
-          # If we don’t, Hyperex will output a (non-standard) <datetime> tag.
+          # `datetime` is a user-defined function and not a “native” HTML tag,
+          # so we have to preprend a `-` before `datetime`.
+          # If we don’t, Hyperex will try to output a (non-standard) <datetime> tag.
           -datetime(datetime: comment.created_at)
           " by "
           -user_link(user: comment.author)
