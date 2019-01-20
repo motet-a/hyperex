@@ -1,121 +1,99 @@
 defmodule HyperexExample do
   require Hyperex
+  import Hyperex
 
-  # Let’s define a custom unary operator for delimiting the embedded markup,
-  # so `~~~` is a sort of alias for `hyperex`. Of course, this is a
-  # matter of taste and directly using the `hyperex` macro is perfectly
-  # fine.
-  defmacrop ~~~ ast do
-    quote do
-      Hyperex.hyperex(unquote(ast))
+  # This thing is called a “function component” in the React world.
+  # A component is a function that generates renderable elements.
+  # This component outputs the markup for a link that points to the
+  # profile of someone.
+  defp user_link(%{user: user}) do
+    h :a, class: "user-link", href: "/user/#{user.id}" do
+      user.name
     end
   end
 
-  # So, this thing is called a “component” in the React world.
-  # A component is a function that generates renderable elements.
-  # That’s it. This component outputs the markup for a link that
-  # points to the profile of someone.
-  defp user_link(%{user: user}) do
-    # You can replace these `~~~` by `hyperex`.
-    ~~~
-      a class: "user-link", href: "/user/#{user.id}" do
-        # Between a `do` and an `end`, expressions which aren’t inline markup
-        # or inline strings must be interpolated with `^`
-        ^user.name
-      end
-  end
-
-  defp datetime(%{datetime: dt, children: children}) do
-    ~~~
-      time datetime: to_string(dt) do
-        ^(children || to_string(dt))
-      end
+  defp datetime(props) do
+    {dt, props} = Map.pop props, :datetime
+    h :time, datetime: to_string(dt) do
+      props.children || to_string(dt)
+    end
   end
 
   defp comment(%{comment: comment}) do
-    ~~~
-      div class: "comment" do
-        div class: "comment-meta" do
-          # `datetime` is a user-defined function and not a “native” HTML tag,
-          # so we have to preprend a `-` before `datetime`.
-          # If we don’t, Hyperex will try to output a (non-standard) <datetime> tag.
-          -datetime(datetime: comment.created_at)
-          " by "
-          -user_link(user: comment.author)
-        end
-
-        p class: "comment-text" do
-          ^comment.text
-        end
+    h :div, class: "comment" do
+      h :div, class: "comment-meta" do
+        # `datetime` is a user-defined function and not a “native” HTML tag,
+        h datetime, datetime: comment.created_at
+        " by "
+        h user_link, user: comment.author
       end
+
+      h :p, class: "comment-text" do
+        comment.text
+      end
+    end
   end
 
   defp reply_form(%{}) do
-    ~~~
-      form action: "test" do
-        textarea name: "text", placeholder: "Write a reply…"
-        button type: "submit" do
-          "Reply"
-        end
+    h :form, action: "test" do
+      h :textarea, name: "text", placeholder: "Write a reply…"
+      h :button, type: "submit" do
+        "Reply"
       end
+    end
   end
 
   defp thread(%{thread: thread}) do
-    ~~~
-      div class: "thread" do
-        div class: "comments" do
-          ^Enum.map(thread.comments, fn c ->
-            comment %{comment: c}
-          end)
-        end
-
-        -reply_form
+    h :div, class: "thread" do
+      h :div, class: "comments" do
+        Enum.map(thread.comments, fn c ->
+          h comment, %{comment: c}
+        end)
       end
+
+      h reply_form
+    end
   end
 
   defp page(props) do
     head =
-      ~~~
-        head do
-          meta charset: "utf-8"
+      h :head do
+        h :meta, charset: "utf-8"
 
-          # Same as `title do ^props.title end`
-          title children: props.title
-        end
+        # Same as `title do props.title end`
+        h :title, children: props.title
+      end
 
     body =
-      ~~~
-        body do
-          header do
-            # This is a shortcut for `span do "Hyperex example" end`
-            span "Hyperex example"
-          end
-
-          main do
-            h1 do
-              ^props.title
-            end
-
-            ^props.children
-          end
-
-          footer
+      h :body do
+        h :header do
+          # This is a shortcut for `span do "Hyperex example" end`
+          h :span, "Hyperex example"
         end
 
-    ~~~
-      -Hyperex.html5_doctype do
-        html do
-          ^head
-          ^body
+        h :main do
+          h :h1 do
+            props.title
+          end
+
+          props.children
+        end
+
+        h :footer, "footnote"
+      end
+
+      h Hyperex.html5_doctype do
+        h :html do
+          head
+          body
         end
       end
   end
 
   defp thread_page(%{thread: t}) do
-    ~~~
-      -page title: t.title do
-        -thread thread: t
-      end
+    h page, title: t.title do
+      h thread, thread: t
+    end
   end
 
   def main do
@@ -136,11 +114,9 @@ defmodule HyperexExample do
 
     html =
       Hyperex.render(
-        thread_page %{
-          thread: %{
-            title: "Yet another HTML renderer",
-            comments: comments
-          }
+        h thread_page, thread: %{
+          title: "Yet another HTML renderer",
+          comments: comments
         }
       )
 

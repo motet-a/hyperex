@@ -6,7 +6,7 @@ defmodule Hyperex.MixProject do
       app: :hyperex,
       name: "Hyperex",
       package: package(),
-      version: "0.1.1",
+      version: "0.2.0",
       elixir: "~> 1.6",
       deps: deps(),
       description: "A macro-powered HTML renderer",
@@ -16,9 +16,9 @@ defmodule Hyperex.MixProject do
 
   defp deps do
     [
-      {:plug, "~> 1.5"},
+      {:plug, "~> 1.7"},
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
-      {:credo, "~> 0.9.0-rc1", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.0", only: [:dev, :test], runtime: false},
       {:ex_doc, ">= 0.0.0", only: :dev}
     ]
   end
